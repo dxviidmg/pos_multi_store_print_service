@@ -26,7 +26,7 @@ async def post_test(request: Request):
     data = await request.json()
     text = data['data']
     
-#    printer.text(text + "\n")
-#    printer.cut()
+    printer.text(text + "\n")
+    printer.cut()
     print(f"POST recibido: {text}")
     return JSONResponse(content={"message": "Datos recibidos correctamente"})
