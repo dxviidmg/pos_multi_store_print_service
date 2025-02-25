@@ -1,4 +1,3 @@
-import socket
 from escpos.printer import Usb
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -29,4 +28,24 @@ async def post_test(request: Request):
     printer.text(text + "\n")
     printer.cut()
     print(f"POST recibido: {text}")
+    return JSONResponse(content={"message": "Datos recibidos correctamente"})
+
+@app.post("/ticket/")
+async def post_test(request: Request):
+    data = await request.json()
+    data = data['data']
+    print(data)
+    
+    
+    printer.set(align='center', bold=True, double_height=True, double_width=True)
+    printer.text("Mi tienda\n")
+    printer.text("--------------------\n")
+    printer.set(align='left', bold=False, double_height=False, double_width=False)
+    printer.text("Cliente:" + data['client']['full_name'])
+    printer.text("--------------------\n")
+    printer.text("Compra\n")
+    printer.text("--------------------\n")
+    for product in data['client']:
+        printer.text(f"{product['product_description'].ljust(15)} x{product['product_description']}  ${precio:.2f}\n")
+    
     return JSONResponse(content={"message": "Datos recibidos correctamente"})
