@@ -96,6 +96,12 @@ async def post_ticket(request: Request):
         printer.text("----------------------------\n")
         printer.set(align='right', bold=False, double_height=False, double_width=False)
         printer.text(f"Total: ${data['total']:.2f}\n")
+
+        printer.text("----------------------------\n")
+
+        printer.set(align='center', bold=False, double_height=False, double_width=False)
+        printer.text("🔹Este negocio usa SmartVenta🔹\n")
+        printer.text("📞 Informes: +52 55 61 65 25 99\n")
         printer.cut()
 
         # Respuesta de éxito
