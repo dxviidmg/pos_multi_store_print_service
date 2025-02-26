@@ -26,54 +26,84 @@ async def post_test(request: Request):
     data = await request.json()
 
     text = data['data']
-    printer.set(align='center', bold=True, double_height=True, double_width=True)    
+    printer.set(align='center', bold=False, double_height=False, double_width=False)    
     printer.text(text + "\n")
-    printer.set(align='center', bold=True, double_height=False, double_width=False)    
-    printer.text(text + "\n")
-    printer.set(align='center', bold=True, double_height=False, double_width=True)    
-    printer.text(text + "\n")
-    printer.set(align='center', bold=True, double_height=True, double_width=False)    
-    printer.text(text + "\n")
+    # Imprimir con alineación centrada, negrita, altura doble, y ancho doble
     printer.set(align='center', bold=True, double_height=True, double_width=True)
-    printer.text("Texto con alto y ancho dobles en negrita y centrado.\n")
+    printer.text("Texto con formato centrado, negrita, altura y ancho doble.\n")
 
-    printer.set(align='right', font='b', underline=True)
-    printer.text("Texto en fuente B, subrayado y alineado a la derecha.\n")
+    # Imprimir con alineación a la izquierda, fuente B, subrayado y sin negrita
+    printer.set(align='left', font='b', underline=True, bold=False)
+    printer.text("Texto con fuente B, subrayado y alineación a la izquierda.\n")
 
-    printer.set(align='left', invert=False)
-    printer.text("Texto invertido y alineado a la izquierda.\n")
+    # Imprimir texto con tachado y alineado a la derecha
+    printer.text("Texto tachado y alineado a la derecha.\n")
 
-    printer.set(align='center', double_height=False, double_width=False, font='a')
-    printer.text("Texto normal, alineado al centro.\n")
+
     printer.cut()
     print(f"POST recibido: {text}")
     return JSONResponse(content={"message": "Datos recibidos correctamente"})
 
 @app.post("/ticket/")
-async def post_test(request: Request):
-    data = await request.json()
-    data = data['data']
-    
-    
-    printer.set(align='center', bold=True, double_height=True, double_width=True)
-    printer.text(data["tenant_name"] + "\n")
-    printer.text("--------------------\n")
-    now = datetime.datetime.now()
-    printer.text("Fecha y hora:" + str(now) +"\n")
-    printer.text("--------------------\n")
+async def post_ticket(request: Request):
+    try:
+        # Obtener los datos de la solicitud
+        data = await request.json()
+        if "data" not in data:
+            raise HTTPException(status_code=400, detail="Falta el campo 'data' en la solicitud")
+        
+        data = data["data"]
 
-    if 'full_name' in data['client']:
+        # Verificar si todos los campos requeridos existen
+        required_fields = ["tenant_name", "client", "store_products", "total"]
+        for field in required_fields:
+            if field not in data:
+                raise HTTPException(status_code=400, detail=f"Falta el campo '{field}' en los datos")
 
-        printer.text("Cliente:" + data['client']['full_name'] + "\n")
-        printer.text("--------------------\n")
+        # Obtener la fecha y hora actual
+        now = datetime.datetime.now()
+        formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
 
-    printer.set(align='left', bold=False, double_height=False, double_width=False)
-    printer.text("Producto | Cantidad | Precio | Importe\n")
-    for product in data['store_products']:
-        printer.text(f"{product['description']} | {product['quantity']} | ${product['price']:.2f} | {product['price'] * product['quantity']:.2f}\n" )
-    
-    printer.set(align='right', bold=False, double_height=False, double_width=False)
-    printer.text(f"Total: ${data['total']:.2f}\n")
-    printer.cut()
+        # Imprimir el nombre del inquilino
+        printer.set(align='center', bold=True, double_height=True, double_width=True)
+        printer.text(data["tenant_name"] + "\n")
+        printer.set(align='left', bold=False, double_height=False, double_width=False, font="b")
 
-    return JSONResponse(content={"message": "Datos recibidos correctamente"})
+        printer.text("---------------------------\n")
+
+        printer.text("Fecha y hora: " + formatted_date + "\n")
+        printer.text("---------------------------\n")
+
+        # Imprimir el nombre del cliente, si existe
+        if 'full_name' in data['client']:
+            printer.text("Cliente: " + data['client']['full_name'] + "\n")
+            printer.text("---------------------------\n")
+
+        # Imprimir tabla de productos
+
+        printer.text("Producto | Cantidad | Precio | Importe\n")
+        printer.text("---------------------------\n")
+        
+        # Recorrer los productos y mostrar la información
+        for product in data['store_products']:
+            description = product['description']
+            quantity = product['quantity']
+            price = product['price']
+            total_price = price * quantity
+            printer.text(f"{description} | {quantity} | ${price:6.2f} | ${total_price:7.2f}\n")
+        
+        # Imprimir total
+        printer.set(align='right', bold=False, double_height=False, double_width=False)
+        printer.text("---------------------------\n")
+        printer.text(f"Total: ${data['total']:.2f}\n")
+        printer.cut()
+
+        # Respuesta de éxito
+        return JSONResponse(content={"message": "Datos recibidos correctamente"}, status_code=200)
+
+    except HTTPException as http_error:
+        # Manejo de errores en la solicitud
+        return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
+    except Exception as e:
+        # Manejo de errores generales
+        return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
