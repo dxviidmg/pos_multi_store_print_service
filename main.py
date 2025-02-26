@@ -69,20 +69,20 @@ async def post_ticket(request: Request):
         printer.text(data["tenant_name"] + "\n")
         printer.set(align='left', bold=False, double_height=False, double_width=False, font="b")
 
-        printer.text("---------------------------\n")
+        printer.text("----------------------------\n")
 
         printer.text("Fecha y hora: " + formatted_date + "\n")
-        printer.text("---------------------------\n")
+        printer.text("----------------------------\n")
 
         # Imprimir el nombre del cliente, si existe
         if 'full_name' in data['client']:
             printer.text("Cliente: " + data['client']['full_name'] + "\n")
-            printer.text("---------------------------\n")
+            printer.text("----------------------------\n")
 
         # Imprimir tabla de productos
 
         printer.text("Producto | Cantidad | Precio | Importe\n")
-        printer.text("---------------------------\n")
+        printer.text("----------------------------\n")
         
         # Recorrer los productos y mostrar la información
         for product in data['store_products']:
@@ -93,8 +93,8 @@ async def post_ticket(request: Request):
             printer.text(f"{description} | {quantity} | ${price:6.2f} | ${total_price:7.2f}\n")
         
         # Imprimir total
+        printer.text("----------------------------\n")
         printer.set(align='right', bold=False, double_height=False, double_width=False)
-        printer.text("---------------------------\n")
         printer.text(f"Total: ${data['total']:.2f}\n")
         printer.cut()
 
