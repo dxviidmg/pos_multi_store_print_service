@@ -1,8 +1,26 @@
-# pos_multi_store_print_service
-# Installar driver de impresora
+# POS Multi Store Print Service
 
-Paste libusb-1.0.dll inside:
-C:\Windows\System32
-Your Python installation folder (e.g., C:\Users\YourUsername\AppData\Local\Programs\Python\Python313)
+Este proyecto proporciona un servicio de impresión para múltiples tiendas en un sistema de punto de venta (POS).
 
-uvicorn main:app --host 0.0.0.0 --port 5000 --reload
+## Requisitos
+
+Antes de ejecutar el servicio, asegúrate de cumplir con los siguientes requisitos:
+
+- **Python** instalado en tu sistema.
+- **Drivers de impresora** correctamente instalados.
+- **Dependencias del proyecto** instaladas.
+
+## Instalación del Driver de Impresora
+
+Para que la impresora funcione correctamente, es necesario copiar el archivo `libusb-1.0.dll` en las siguientes ubicaciones:
+
+1. `C:\Windows\System32`
+2. La carpeta de instalación de Python (por ejemplo: `C:\Users\TuUsuario\AppData\Local\Programs\Python\Python313`)
+
+## Instalación del Proyecto
+
+1. Clona este repositorio:
+
+   ```sh
+   git clone https://github.com/tu-usuario/pos_multi_store_print_service.git
+   cd pos_multi_store_print_service
