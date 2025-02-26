@@ -1,13 +1,20 @@
-import socket
+import requests
 
-# Dirección del servidor
-host = "127.0.0.1"
-port = 5000
-message = "¡Ticket de prueba desde cliente Python!"
+# URL de tu servidor
+url = "http://127.0.0.1:5000/test/"  # Cambia esta URL si tu servidor tiene una URL diferente
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.connect((host, port))
-    s.sendall(message.encode('utf-8'))
-    data = s.recv(1024)
+# Datos a enviar en el cuerpo de la solicitud (JSON)
+data = {
+    "data": "Este es un mensaje de prueba"
+}
 
-print("Respuesta del servidor:", data.decode('utf-8'))
+# Realizar la solicitud POST
+response = requests.post(url, json=data)
+
+print(response)
+
+# Mostrar la respuesta
+if response.status_code == 200:
+    print("Éxito:", response.json())
+else:
+    print("Error:", response.status_code, response.text)
