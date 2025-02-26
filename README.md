@@ -12,10 +12,12 @@ Antes de ejecutar el servicio, asegúrate de cumplir con los siguientes requisit
 
 ## Instalación del Driver de Impresora
 
-Para que la impresora funcione correctamente, es necesario copiar el archivo `libusb-1.0.dll` en las siguientes ubicaciones:
+1. Instala zadig-2.9 y busca en las opciones la impresora
 
-1. `C:\Windows\System32`
-2. La carpeta de instalación de Python (por ejemplo: `C:\Users\TuUsuario\AppData\Local\Programs\Python\Python313`)
+2. Para que la impresora funcione correctamente, es necesario copiar el archivo `libusb-1.0.dll` en las siguientes ubicaciones:
+
+2.1. `C:\Windows\System32`
+2.2. La carpeta de instalación de Python (por ejemplo: `C:\Users\TuUsuario\AppData\Local\Programs\Python\Python313`)
 
 ## Instalación del Proyecto
 
@@ -24,3 +26,18 @@ Para que la impresora funcione correctamente, es necesario copiar el archivo `li
    ```sh
    git clone https://github.com/tu-usuario/pos_multi_store_print_service.git
    cd pos_multi_store_print_service
+   ```
+
+2. Instala dependencias:
+
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+
+
+3. Corre el servidor
+
+   ```sh
+   uvicorn main:app --host 0.0.0.0 --port 5000
+   ```
