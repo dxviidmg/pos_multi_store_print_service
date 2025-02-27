@@ -65,7 +65,7 @@ async def post_ticket(request: Request):
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
 
         printer.set(align='left', bold=False, double_height=False, double_width=False, font="b")
-        printer.text("Fecha y hora: " + formatted_date + "\n\n")
+        printer.text(formatted_date + "\n\n")
 
         # Imprimir el nombre del cliente, si existe
         if 'full_name' in data['client']:
@@ -76,11 +76,11 @@ async def post_ticket(request: Request):
         printer.text("Cantidad | Producto | Importe\n")
         # Recorrer los productos y mostrar la información
         for product in data['store_products']:
-            description = product['description_ticket']
+            name = product['name']
             quantity = product['quantity']
             price = product['price']
             total_price = price * quantity
-            printer.text(f"{quantity} | {description} | ${total_price:7.2f}\n")
+            printer.text(f"{quantity} | {name} | ${total_price}\n")
         
         # Imprimir total
         printer.text("\n")
