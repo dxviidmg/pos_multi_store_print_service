@@ -64,44 +64,34 @@ async def post_ticket(request: Request):
         now = datetime.datetime.now()
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
 
-        # Imprimir el nombre del inquilino
-        printer.set(align='center', bold=True, double_height=True, double_width=True)
-        printer.text(data["tenant_name"] + "\n")
         printer.set(align='left', bold=False, double_height=False, double_width=False, font="b")
-
-        printer.text("----------------------------\n")
-
-        printer.text("Fecha y hora: " + formatted_date + "\n")
-        printer.text("----------------------------\n")
+        printer.text(formatted_date + "\n\n")
 
         # Imprimir el nombre del cliente, si existe
         if 'full_name' in data['client']:
-            printer.text("Cliente: " + data['client']['full_name'] + "\n")
-            printer.text("----------------------------\n")
+            printer.text("Cliente: " + data['client']['full_name'] + "\n\n")
 
         # Imprimir tabla de productos
 
-        printer.text("Producto | Cantidad | Precio | Importe\n")
-        printer.text("----------------------------\n")
-        
+        printer.text("Cantidad | Producto | Importe\n")
         # Recorrer los productos y mostrar la información
         for product in data['store_products']:
-            description = product['description']
+            name = product['name']
             quantity = product['quantity']
             price = product['price']
             total_price = price * quantity
-            printer.text(f"{description} | {quantity} | ${price:6.2f} | ${total_price:7.2f}\n")
+            printer.text(f"{quantity} | {name} | ${total_price}\n")
         
         # Imprimir total
-        printer.text("----------------------------\n")
+        printer.text("\n")
         printer.set(align='right', bold=False, double_height=False, double_width=False)
-        printer.text(f"Total: ${data['total']:.2f}\n")
+        printer.text(f"Total: ${data['total']:.2f}\n\n")
 
-        printer.text("----------------------------\n")
 
         printer.set(align='center', bold=False, double_height=False, double_width=False)
-        printer.text("🔹Este negocio usa SmartVenta🔹\n")
-        printer.text("📞 Informes: +52 55 61 65 25 99\n")
+        printer.text("¡Gracias por su compra!\n")
+        printer.text("*** Este ticket fue generado por ***\n")
+        printer.text("* SmartVenta *\n")
         printer.cut()
 
         # Respuesta de éxito
