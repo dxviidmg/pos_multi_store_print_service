@@ -55,7 +55,7 @@ async def post_ticket(request: Request):
         data = data["data"]
 
         # Verificar si todos los campos requeridos existen
-        required_fields = ["tenant_name", "client", "store_products", "total"]
+        required_fields = ["client", "store_products", "total"]
         for field in required_fields:
             if field not in data:
                 raise HTTPException(status_code=400, detail=f"Falta el campo '{field}' en los datos")
