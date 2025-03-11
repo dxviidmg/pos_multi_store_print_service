@@ -24,25 +24,33 @@ def read_root():
 @app.post("/test/")
 async def post_test(request: Request):
     data = await request.json()
+    try:
+        text = data['data']
+        printer.set(align='center', bold=False, double_height=False, double_width=False)    
+        printer.text(text + "\n")
+        # Imprimir con alineación centrada, negrita, altura doble, y ancho doble
+        printer.set(align='center', bold=True, double_height=True, double_width=True)
+        printer.text("Texto con formato centrado, negrita, altura y ancho doble.\n")
 
-    text = data['data']
-    printer.set(align='center', bold=False, double_height=False, double_width=False)    
-    printer.text(text + "\n")
-    # Imprimir con alineación centrada, negrita, altura doble, y ancho doble
-    printer.set(align='center', bold=True, double_height=True, double_width=True)
-    printer.text("Texto con formato centrado, negrita, altura y ancho doble.\n")
+        # Imprimir con alineación a la izquierda, fuente B, subrayado y sin negrita
+        printer.set(align='left', font='b', underline=True, bold=False)
+        printer.text("Texto con fuente B, subrayado y alineación a la izquierda.\n")
 
-    # Imprimir con alineación a la izquierda, fuente B, subrayado y sin negrita
-    printer.set(align='left', font='b', underline=True, bold=False)
-    printer.text("Texto con fuente B, subrayado y alineación a la izquierda.\n")
-
-    # Imprimir texto con tachado y alineado a la derecha
-    printer.text("Texto tachado y alineado a la derecha.\n")
+        # Imprimir texto con tachado y alineado a la derecha
+        printer.text("Texto tachado y alineado a la derecha.\n")
 
 
-    printer.cut()
-    print(f"POST recibido: {text}")
-    return JSONResponse(content={"message": "Datos recibidos correctamente"})
+        printer.cut()
+        print(f"POST recibido: {text}")
+        return JSONResponse(content={"message": "Datos recibidos correctamente"})
+
+
+    except HTTPException as http_error:
+        # Manejo de errores en la solicitud
+        return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
+    except Exception as e:
+        # Manejo de errores generales
+        return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
 
 @app.post("/ticket/")
 async def post_ticket(request: Request):
@@ -90,7 +98,6 @@ async def post_ticket(request: Request):
 
         printer.set(align='center', bold=False, double_height=False, double_width=False)
         printer.text("¡Gracias por su compra!\n")
-        printer.text("*** Este ticket fue generado por ***\n")
         printer.text("* SmartVenta *\n")
         printer.cut()
 
