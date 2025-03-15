@@ -3,6 +3,8 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
+from logging_config import logger 
+
 
 app = FastAPI()
 
@@ -63,10 +65,22 @@ async def post_ticket(request: Request):
         data = data["data"]
 
         # Verificar si todos los campos requeridos existen
-        required_fields = ["client", "store_products", "total"]
+        required_fields = ["client", "total"]
+
         for field in required_fields:
             if field not in data:
                 raise HTTPException(status_code=400, detail=f"Falta el campo '{field}' en los datos")
+            
+
+        required_fields = ["store_products", "products_sale"]
+        products = []
+        for field in required_fields:
+            if field in data:
+                products = data[field]
+                break
+        
+        if products == []:
+            raise HTTPException(status_code=400, detail=f"Faltan datos de productos")
 
         # Obtener la fecha y hora actual
         now = datetime.datetime.now()
@@ -82,7 +96,7 @@ async def post_ticket(request: Request):
         # Imprimir tabla de productos
         printer.text("# |   Producto   | Importe\n")
         
-        for product in data['store_products']:
+        for product in products:
             quantity = str(product['quantity']).center(2)  # Convertimos a string antes de aplicar ljust
             name = product['name'][:12].ljust(12)  # Limitamos a 8 caracteres y alineamos
             price = float(product['price'])  # Convertimos a float para cálculos
@@ -108,5 +122,6 @@ async def post_ticket(request: Request):
         # Manejo de errores en la solicitud
         return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
     except Exception as e:
+        logger.exception("Unexpected error occurred")
         # Manejo de errores generales
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
