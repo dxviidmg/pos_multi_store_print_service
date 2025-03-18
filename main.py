@@ -82,6 +82,7 @@ async def post_ticket(request: Request):
         if products == []:
             raise HTTPException(status_code=400, detail=f"Faltan datos de productos")
 
+        print(data)
         # Obtener la fecha y hora actual
         now = datetime.datetime.now()
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
