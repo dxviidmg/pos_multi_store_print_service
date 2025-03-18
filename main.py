@@ -97,7 +97,7 @@ async def post_ticket(request: Request):
         printer.text("# |   Producto   | Importe\n")
         
         for product in products:
-            quantity = str(product['quantity']).center(2)  # Convertimos a string antes de aplicar ljust
+            quantity = str(product['quantity']).center(1)  # Convertimos a string antes de aplicar ljust
             name = product['name'][:12].ljust(12)  # Limitamos a 8 caracteres y alineamos
             price = float(product['price'])  # Convertimos a float para cálculos
             total_price = price * product['quantity']  # Multiplicamos correctamente
