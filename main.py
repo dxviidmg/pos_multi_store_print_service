@@ -65,7 +65,7 @@ async def post_ticket(request: Request):
         data = data["data"]
 
         # Verificar si todos los campos requeridos existen
-        required_fields = ["client", "total"]
+        required_fields = ["total"]
 
         for field in required_fields:
             if field not in data:
@@ -87,7 +87,7 @@ async def post_ticket(request: Request):
         now = datetime.datetime.now()
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
         printer.text(formatted_date + "\n\n")
-        
+
         printer.set(align='left')
         # Imprimir el nombre del cliente, si existe
         if data['client'] and 'full_name' in data['client']:
