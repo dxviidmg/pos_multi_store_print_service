@@ -83,10 +83,12 @@ async def post_ticket(request: Request):
             raise HTTPException(status_code=400, detail=f"Faltan datos de productos")
 
         # Obtener la fecha y hora actual
+        printer.set(align='center', bold=False, double_height=False, double_width=False, font="b")
         now = datetime.datetime.now()
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
 
-        printer.set(align='left', bold=False, double_height=False, double_width=False, font="b")
+#        printer.set(align='left', bold=False, double_height=False, double_width=False, font="b")
+        printer.set(align='left')
         printer.text(formatted_date + "\n\n")
 
         # Imprimir el nombre del cliente, si existe
@@ -94,11 +96,11 @@ async def post_ticket(request: Request):
             printer.text("Cliente: " + data['client']['full_name'] + "\n\n")
 
         # Imprimir tabla de productos
-        printer.text("# |   Producto   | Importe\n")
+        printer.text("# |    Producto    | Importe\n")
         
         for product in products:
-            quantity = str(product['quantity']).center(1)  # Convertimos a string antes de aplicar ljust
-            name = product['name'][:12].ljust(12)  # Limitamos a 8 caracteres y alineamos
+            quantity = str(product['quantity'])  # Convertimos a string antes de aplicar ljust
+            name = product['name'][:14].ljust(14)  # Limitamos a 8 caracteres y alineamos
             price = float(product['price'])  # Convertimos a float para cálculos
             total_price = price * product['quantity']  # Multiplicamos correctamente
 
@@ -106,11 +108,12 @@ async def post_ticket(request: Request):
         
         # Imprimir total
         printer.text("\n")
-        printer.set(align='right', bold=False, double_height=False, double_width=False)
+#        printer.set(align='right', bold=False, double_height=False, double_width=False)
+        printer.set(align='right')
         printer.text(f"Total: ${float(data['total']):.2f}\n\n")
 
-
-        printer.set(align='center', bold=False, double_height=False, double_width=False)
+#        printer.set(align='center', bold=False, double_height=False, double_width=False)
+        printer.set(align='center')
         printer.text("¡Gracias por su compra!\n")
         printer.text("* SmartVenta *\n")
         printer.cut()
