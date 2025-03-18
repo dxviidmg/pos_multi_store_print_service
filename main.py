@@ -82,7 +82,6 @@ async def post_ticket(request: Request):
         if products == []:
             raise HTTPException(status_code=400, detail=f"Faltan datos de productos")
 
-        print(data)
         # Obtener la fecha y hora actual
         now = datetime.datetime.now()
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -108,7 +107,7 @@ async def post_ticket(request: Request):
         # Imprimir total
         printer.text("\n")
         printer.set(align='right', bold=False, double_height=False, double_width=False)
-        printer.text(f"Total: ${data['total']:.2f}\n\n")
+        printer.text(f"Total: ${float(data['total']):.2f}\n\n")
 
 
         printer.set(align='center', bold=False, double_height=False, double_width=False)
