@@ -90,7 +90,7 @@ async def post_ticket(request: Request):
 
         printer.set(align='left')
         # Imprimir el nombre del cliente, si existe
-        if data['client'] and 'full_name' in data['client']:
+        if 'client' in data and 'full_name' in data['client']:
             printer.text("Cliente: " + data['client']['full_name'] + "\n\n")
 
         # Imprimir tabla de productos
