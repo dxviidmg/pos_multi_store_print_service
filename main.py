@@ -86,11 +86,9 @@ async def post_ticket(request: Request):
         printer.set(align='center', bold=False, double_height=False, double_width=False, font="b")
         now = datetime.datetime.now()
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
-
-#        printer.set(align='left', bold=False, double_height=False, double_width=False, font="b")
-        printer.set(align='left')
         printer.text(formatted_date + "\n\n")
-
+        
+        printer.set(align='left')
         # Imprimir el nombre del cliente, si existe
         if data['client'] and 'full_name' in data['client']:
             printer.text("Cliente: " + data['client']['full_name'] + "\n\n")
