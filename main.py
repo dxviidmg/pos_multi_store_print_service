@@ -48,9 +48,9 @@ async def post_test(request: Request):
 
 
     except HTTPException as http_error:
-        # Manejo de errores en la solicitud
         return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
     except Exception as e:
+        logger.exception("Unexpected error occurred")
         # Manejo de errores generales
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
 
@@ -115,7 +115,6 @@ async def post_ticket(request: Request):
 
         # Respuesta de éxito
         return JSONResponse(content={"message": "Datos recibidos correctamente"}, status_code=200)
-
     except HTTPException as http_error:
         # Manejo de errores en la solicitud
         return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
