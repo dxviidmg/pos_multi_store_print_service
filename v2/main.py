@@ -114,12 +114,12 @@ async def post_ticket(request: Request):
         hDC.SelectObject(font)
 
         y = 10
-        spacing = 20
+        spacing = 50
         hDC.TextOut(0, y, f"Fecha: {formatted_date}")
         y += spacing
 
         # Tabla
-        hDC.TextOut(0, y, "Cant | Producto       | Importe")
+        hDC.TextOut(0, y, "Cant |   Producto   | Importe")
         y += spacing
 
         for product in products:
@@ -127,7 +127,7 @@ async def post_ticket(request: Request):
             name = str(product["name"])[:16].ljust(16)
             price = float(product["price"])
             total = qty * price
-            line = f"{qty:<6} | {name} | {total:7.2f}"
+            line = f"{qty:<7} | {name} | {total:7.2f}"
             hDC.TextOut(0, y, line)
             y += spacing
 
