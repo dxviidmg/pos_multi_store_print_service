@@ -133,7 +133,7 @@ async def post_ticket(request: Request):
 
         # Total
         y += spacing
-        hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
+        hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}. '¡¡¡Gracias por su compra!!!")
 
         hDC.EndPage()
         hDC.EndDoc()
