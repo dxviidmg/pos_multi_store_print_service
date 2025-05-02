@@ -108,13 +108,13 @@ async def post_ticket(request: Request):
 
         font = win32ui.CreateFont({
             "name": "Arial",
-            "height": 35,
+            "height": 50,
             "weight": 700,
         })
         hDC.SelectObject(font)
 
         y = 10
-        spacing = 50
+        spacing = 20
         hDC.TextOut(0, y, f"Fecha: {formatted_date}")
         y += spacing
 
