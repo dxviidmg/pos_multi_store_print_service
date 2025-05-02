@@ -76,20 +76,15 @@ async def post_test(request: Request):
 @app.post("/ticket/")
 async def post_ticket(request: Request):
     try:
-        # Obtener los datos de la solicitud
         data = await request.json()
         if "data" not in data:
             raise HTTPException(status_code=400, detail="Falta el campo 'data' en la solicitud")
-        
+
         data = data["data"]
 
-        # Verificar si todos los campos requeridos existen
-        required_fields = ["total"]
-
-        for field in required_fields:
-            if field not in data:
-                raise HTTPException(status_code=400, detail=f"Falta el campo '{field}' en los datos")
-            
+        # Validar campos requeridos
+        if "total" not in data:
+            raise HTTPException(status_code=400, detail="Falta el campo 'total'")
 
         required_fields = ["store_products", "products_sale"]
         products = []
@@ -97,47 +92,67 @@ async def post_ticket(request: Request):
             if field in data:
                 products = data[field]
                 break
-        
-        if products == []:
-            raise HTTPException(status_code=400, detail=f"Faltan datos de productos")
+
+        if not products:
+            raise HTTPException(status_code=400, detail="Faltan datos de productos")
 
         # Obtener la fecha y hora actual
-        printer.set(align='center', bold=False, double_height=False, double_width=False, font="b")
         now = datetime.datetime.now()
         formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
-        printer.text(formatted_date + "\n\n")
 
-        printer.set(align='left')
-        # Imprimir el nombre del cliente, si existe
-        # Imprimir tabla de productos
-        printer.text("# |    Producto    | Importe\n")
-        
+        # === INICIO IMPRESIÓN CON GDI ===
+        hDC = win32ui.CreateDC()
+        hDC.CreatePrinterDC(printer_name)
+        hDC.StartDoc("Ticket Python")
+        hDC.StartPage()
+
+        font = win32ui.CreateFont({
+            "name": "Arial",
+            "height": 35,
+            "weight": 700,
+        })
+        hDC.SelectObject(font)
+
+        y = 100
+        spacing = 60
+
+        # Encabezado
+        hDC.TextOut(100, y, "SmartVenta - Ticket de Compra")
+        y += spacing
+        hDC.TextOut(100, y, f"Fecha: {formatted_date}")
+        y += spacing
+
+        # Tabla
+        hDC.TextOut(100, y, "Cant | Producto       | Importe")
+        y += spacing
+
         for product in products:
-            quantity = str(product['quantity'])  # Convertimos a string antes de aplicar ljust
-            name = product['name'][:14].ljust(14)  # Limitamos a 8 caracteres y alineamos
-            price = float(product['price'])  # Convertimos a float para cálculos
-            total_price = price * product['quantity']  # Multiplicamos correctamente
+            qty = product["quantity"]
+            name = str(product["name"])[:14].ljust(14)
+            price = float(product["price"])
+            total = qty * price
+            line = f"{qty:<4} | {name} | {total:7.2f}"
+            hDC.TextOut(100, y, line)
+            y += spacing
 
-            printer.text(f"{quantity} | {name} | {total_price:7,.2f}\n")  
-        
-        # Imprimir total
-        printer.text("\n")
-#        printer.set(align='right', bold=False, double_height=False, double_width=False)
-        printer.set(align='right')
-        printer.text(f"Total: ${float(data['total']):.2f}\n\n")
+        # Total
+        y += spacing
+        hDC.TextOut(100, y, f"TOTAL: ${float(data['total']):.2f}")
+        y += spacing * 2
 
-#        printer.set(align='center', bold=False, double_height=False, double_width=False)
-        printer.set(align='center')
-        printer.text("¡Gracias por su compra!\n")
-        printer.text("* SmartVenta *\n")
-        printer.cut()
+        # Mensaje final
+        hDC.TextOut(100, y, "¡Gracias por su compra!")
+        y += spacing
+        hDC.TextOut(100, y, "* SmartVenta *")
 
-        # Respuesta de éxito
-        return JSONResponse(content={"message": "Datos recibidos correctamente"}, status_code=200)
+        hDC.EndPage()
+        hDC.EndDoc()
+        hDC.DeleteDC()
+        # === FIN IMPRESIÓN ===
+
+        return JSONResponse(content={"message": "Ticket impreso correctamente"}, status_code=200)
+
     except HTTPException as http_error:
-        # Manejo de errores en la solicitud
         return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
     except Exception as e:
-        logger.exception("Unexpected error occurred")
-        # Manejo de errores generales
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
