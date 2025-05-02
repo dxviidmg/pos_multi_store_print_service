@@ -130,7 +130,7 @@ async def post_ticket(request: Request):
             total2 = f"{total:7.2f}"
             line = f"{qty:<7} | {name} | {total:7.2f}"
 #            hDC.TextOut(0, y, line)
-            hDC.TextOut(0, y, qty)
+            hDC.TextOut(0, y, str(qty))
             hDC.TextOut(0, 20, name)
             hDC.TextOut(0, 50, total2)
             y += spacing
