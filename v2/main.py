@@ -108,7 +108,7 @@ async def post_ticket(request: Request):
 
         font = win32ui.CreateFont({
             "name": "Arial",
-            "height": 50,
+            "height": 35,
             "weight": 700,
         })
         hDC.SelectObject(font)
