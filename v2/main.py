@@ -114,8 +114,7 @@ async def post_ticket(request: Request):
         hDC.SelectObject(font)
 
         y = 10
-        spacing = 60
-        y += spacing
+        spacing = 50
         hDC.TextOut(0, y, f"Fecha: {formatted_date}")
         y += spacing
 
