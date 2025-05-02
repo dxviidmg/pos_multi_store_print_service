@@ -127,11 +127,12 @@ async def post_ticket(request: Request):
             name = str(product["name"])[:14].ljust(14)
             price = float(product["price"])
             total = qty * price
+            total2 = f"{total:7.2f}"
             line = f"{qty:<7} | {name} | {total:7.2f}"
 #            hDC.TextOut(0, y, line)
             hDC.TextOut(0, y, qty)
             hDC.TextOut(0, 20, name)
-            hDC.TextOut(0, 50, total)
+            hDC.TextOut(0, 50, total2)
             y += spacing
 
         # Total
@@ -146,6 +147,10 @@ async def post_ticket(request: Request):
         return JSONResponse(content={"message": "Ticket impreso correctamente"}, status_code=200)
 
     except HTTPException as http_error:
+        print(http_error)
+        logger.exception("Unexpected error occurred")
         return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
     except Exception as e:
+        print(e)
+        logger.exception("Unexpected error occurred")
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
