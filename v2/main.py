@@ -53,8 +53,8 @@ async def post_test(request: Request):
         hDC.SelectObject(font)
 
         # Escribir texto alineado a la izquierda (x cercano a 0)
-        hDC.TextOut(10, 100, "¡Hola desde Python!")
-        hDC.TextOut(10, 160, "Gracias por tu compra.")
+        hDC.TextOut(0, 100, "¡Hola desde Python!")
+        hDC.TextOut(0, 160, "Gracias por tu compra.")
 
         hDC.EndPage()
         hDC.EndDoc()
@@ -115,15 +115,12 @@ async def post_ticket(request: Request):
 
         y = 100
         spacing = 60
-
-        # Encabezado
-        hDC.TextOut(100, y, "SmartVenta - Ticket de Compra")
         y += spacing
-        hDC.TextOut(100, y, f"Fecha: {formatted_date}")
+        hDC.TextOut(0, y, f"Fecha: {formatted_date}")
         y += spacing
 
         # Tabla
-        hDC.TextOut(100, y, "Cant | Producto       | Importe")
+        hDC.TextOut(0, y, "Cant | Producto       | Importe")
         y += spacing
 
         for product in products:
@@ -132,18 +129,12 @@ async def post_ticket(request: Request):
             price = float(product["price"])
             total = qty * price
             line = f"{qty:<4} | {name} | {total:7.2f}"
-            hDC.TextOut(100, y, line)
+            hDC.TextOut(0, y, line)
             y += spacing
 
         # Total
         y += spacing
-        hDC.TextOut(100, y, f"TOTAL: ${float(data['total']):.2f}")
-        y += spacing * 2
-
-        # Mensaje final
-        hDC.TextOut(100, y, "¡Gracias por su compra!")
-        y += spacing
-        hDC.TextOut(100, y, "* SmartVenta *")
+        hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
 
         hDC.EndPage()
         hDC.EndDoc()
