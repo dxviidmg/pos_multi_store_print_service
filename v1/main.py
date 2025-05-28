@@ -58,12 +58,6 @@ async def post_ticket(request: Request):
     try:
         # Obtener los datos de la solicitud
         data = await request.json()
-        if "data" not in data:
-            raise HTTPException(status_code=400, detail="Falta el campo 'data' en la solicitud")
-        
-        data = data["data"]
-
-        # Verificar si todos los campos requeridos existen
         required_fields = ["total"]
 
         for field in required_fields:
