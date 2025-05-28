@@ -27,9 +27,8 @@ def read_root():
 async def post_test(request: Request):
     data = await request.json()
     try:
-        text = data['data']
         printer.set(align='center', bold=False, double_height=False, double_width=False)    
-        printer.text(text + "\n")
+        printer.text("Hola Python\n")
         # Imprimir con alineación centrada, negrita, altura doble, y ancho doble
         printer.set(align='center', bold=True, double_height=True, double_width=True)
         printer.text("Texto con formato centrado, negrita, altura y ancho doble.\n")
