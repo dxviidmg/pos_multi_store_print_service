@@ -42,7 +42,7 @@ async def post_test(request: Request):
 
 
         printer.cut()
-        print(f"POST recibido: {text}")
+        print(f"POST recibido")
         return JSONResponse(content={"message": "Datos recibidos correctamente"})
 
 
