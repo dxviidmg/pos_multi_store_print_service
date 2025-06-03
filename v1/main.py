@@ -104,7 +104,8 @@ async def post_ticket(request: Request):
         printer.set(align='center')
         printer.text("¡Gracias por su compra!\n")
         printer.text("* SmartVenta *\n")
-        printer.cut()
+        if data['cut_command'] and data['cut_command'] == True:
+            printer.cut()
 
         # Respuesta de éxito
         return JSONResponse(content={"message": "Datos recibidos correctamente"}, status_code=200)
