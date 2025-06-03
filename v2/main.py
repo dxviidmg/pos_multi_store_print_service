@@ -74,9 +74,6 @@ async def post_test(request: Request):
 async def post_ticket(request: Request):
     try:
         data = await request.json()
-        if "data" not in data:
-            raise HTTPException(status_code=400, detail="Falta el campo 'data' en la solicitud")
-        # Validar campos requeridos
         if "total" not in data:
             raise HTTPException(status_code=400, detail="Falta el campo 'total'")
 
