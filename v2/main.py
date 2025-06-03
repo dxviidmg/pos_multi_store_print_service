@@ -36,7 +36,6 @@ def read_root():
 
 @app.post("/test/")
 async def post_test(request: Request):
-    data = await request.json()
     try:
         hDC = win32ui.CreateDC()
         hDC.CreatePrinterDC(printer_name)
@@ -79,9 +78,6 @@ async def post_ticket(request: Request):
         data = await request.json()
         if "data" not in data:
             raise HTTPException(status_code=400, detail="Falta el campo 'data' en la solicitud")
-
-        data = data["data"]
-
         # Validar campos requeridos
         if "total" not in data:
             raise HTTPException(status_code=400, detail="Falta el campo 'total'")
@@ -133,8 +129,9 @@ async def post_ticket(request: Request):
 
         # Total
         y += spacing
-        hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}. '¡¡¡Gracias por su compra!!!")
-
+        hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
+        y += spacing
+        hDC.TextOut(0, y, f"* SmartVenta * ¡¡¡Gracias por su compra!!!")
         hDC.EndPage()
         hDC.EndDoc()
         hDC.DeleteDC()
