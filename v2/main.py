@@ -126,7 +126,9 @@ async def post_ticket(request: Request):
         y += spacing
         hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
         y += spacing
-        hDC.TextOut(0, y, f"* SmartVenta * ¡¡¡Gracias por su compra!!!")
+        hDC.TextOut(0, y, f"* SmartVenta *")
+        y += spacing
+        hDC.TextOut(0, y, f"¡¡¡Gracias por su compra!!!")
         hDC.EndPage()
         hDC.EndDoc()
         hDC.DeleteDC()
