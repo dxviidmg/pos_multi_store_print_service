@@ -59,8 +59,6 @@ async def post_test(request: Request):
         hDC.EndDoc()
         hDC.DeleteDC()
 
-
-        printer.cut()
         print(f"POST recibido")
         return JSONResponse(content={"message": "Datos recibidos correctamente"})
 
