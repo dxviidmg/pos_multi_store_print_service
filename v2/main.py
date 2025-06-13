@@ -81,7 +81,6 @@ async def post_ticket(request: Request):
         products = []
         for field in required_fields:
             if field in data:
-                products = data[field]
                 break
 
         if not products:
@@ -99,8 +98,8 @@ async def post_ticket(request: Request):
 
         font = win32ui.CreateFont({
             "name": "Arial",
-            "height": 40,
-            "weight": 700,
+            "height": 30,
+            "weight": 600,
         })
         hDC.SelectObject(font)
 
@@ -110,9 +109,30 @@ async def post_ticket(request: Request):
         y += spacing
         y += spacing
         # Tabla
-        hDC.TextOut(0, y, "Cant |       Producto       | Importe")
+
+        products_refund = data['sale_exchange']['products_sale']
+
+        if len(products_refund) > 0: 
+            hDC.TextOut(0, y, "Productos devueltos")
+            y += spacing
+            hDC.TextOut(0, y, "Cant |     Producto     | Importe")
+            y += spacing
+
+
+            for product in products_refund:
+                qty = product["returned_quantity"]
+                name = str(product["name"])[:18].ljust(18)
+                price = float(product["price"])
+                total = qty * price
+                line = f"{qty:<7} | {name} | {total:7.2f}"
+                hDC.TextOut(0, y, line)
+                y += spacing
+
+
+        hDC.TextOut(0, y, "Cant |     Producto     | Importe")
         y += spacing
 
+        products = data[field]
         for product in products:
             qty = product["quantity"]
             name = str(product["name"])[:18].ljust(18)
