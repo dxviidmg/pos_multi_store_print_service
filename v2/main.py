@@ -136,7 +136,7 @@ async def post_ticket(request: Request):
             hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
 
 
-        if 'sale_exchange' in data:
+        if 'sale_exchange' in data and 'products_sale' in data['sale_exchange']:
             products_refund = data['sale_exchange']['products_sale']
 
             hDC.TextOut(0, y, "Productos devueltos")
@@ -149,7 +149,7 @@ async def post_ticket(request: Request):
                 qty = product["returned_quantity"]
                 if qty == 0:
                     continue
-                
+
                 name = str(product["name"])[:15].ljust(15)
                 price = float(product["price"])
                 total = qty * price
