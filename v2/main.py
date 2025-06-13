@@ -157,6 +157,8 @@ async def post_ticket(request: Request):
         y += spacing
         hDC.TextOut(0, y, f"¡¡¡Gracias por su compra!!!")
         hDC.EndPage()
+        y += spacing
+        y += spacing
         hDC.EndDoc()
         hDC.DeleteDC()
         # === FIN IMPRESIÓN ===
