@@ -111,9 +111,9 @@ async def post_ticket(request: Request):
         y += spacing
         # Tabla
 
-        products_refund = data['sale_exchange']['products_sale']
+        if 'sale_exchange' in data:
+            products_refund = data['sale_exchange']['products_sale']
 
-        if len(products_refund) > 0: 
             hDC.TextOut(0, y, "Productos devueltos")
             y += spacing
             hDC.TextOut(0, y, "Cant |     Producto     | Importe")
