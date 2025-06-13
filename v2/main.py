@@ -98,8 +98,8 @@ async def post_ticket(request: Request):
 
         font = win32ui.CreateFont({
             "name": "Arial",
-            "height": 30,
-            "weight": 600,
+            "height": 20,
+            "weight": 500,
         })
         hDC.SelectObject(font)
 
@@ -145,6 +145,12 @@ async def post_ticket(request: Request):
         # Total
         y += spacing
         hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
+        if data['reservation_in_progress']:
+            hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
+            y += spacing
+            debit = data['total'] - data['paid']
+            hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
+
         y += spacing
         hDC.TextOut(0, y, f"* SmartVenta *")
         y += spacing
