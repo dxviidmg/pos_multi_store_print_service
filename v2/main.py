@@ -70,6 +70,7 @@ async def post_test(request: Request):
         # Manejo de errores generales
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
 
+
 @app.post("/ticket/")
 async def post_ticket(request: Request):
     try:
