@@ -126,7 +126,7 @@ async def post_ticket(request: Request):
                 price = float(product["price"])
                 total = qty * price
                 line = f"{qty:<7} | {name} | {total:7.2f}"
-                hDC.TextOut(0, y, line)        if len(products_refund) > 0: 
+                hDC.TextOut(0, y, line)
                 y += spacing
 
 
