@@ -129,14 +129,16 @@ async def post_ticket(request: Request):
         # Total
         y += spacing
         hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
-        if data['reservation_in_progress']:
-            hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
-            y += spacing
-            debit = data['total'] - data['paid']
-            hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
-
+        y += spacing
+#        if data['reservation_in_progress']:
+#            hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
+#            y += spacing
+#            debit = data['total'] - data['paid']
+#            hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
+            
 
         if 'sale_exchange' in data and 'products_sale' in data['sale_exchange']:
+            amount_refund = 0
             products_refund = data['sale_exchange']['products_sale']
 
             hDC.TextOut(0, y, "Productos devueltos")
@@ -153,9 +155,16 @@ async def post_ticket(request: Request):
                 name = str(product["name"])[:15].ljust(15)
                 price = float(product["price"])
                 total = qty * price
+                amount_refund += total
                 line = f"{qty:<7} | {name} | {total:7.2f}"
                 hDC.TextOut(0, y, line)
                 y += spacing
+            y += spacing
+            hDC.TextOut(0, y, f"TOTAL DEVUELTO: ${float(amount_refund):.2f}")
+
+
+            y += spacing
+            hDC.TextOut(0, y, f"TOTAL 2: ${float(data['total'] - amount_refund):.2f}")
 
 
         y += spacing
