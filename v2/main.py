@@ -130,11 +130,12 @@ async def post_ticket(request: Request):
         y += spacing
         hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
         y += spacing
-#        if data['reservation_in_progress']:
-#            hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
-#            y += spacing
-#            debit = data['total'] - data['paid']
-#            hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
+
+        if 'reservation_in_progress' in data and data['reservation_in_progress'] == True:
+            hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
+            y += spacing
+            debit = data['total'] - data['paid']
+            hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
             
 
         if 'sale_exchange' in data and 'products_sale' in data['sale_exchange']:
