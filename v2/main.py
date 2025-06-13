@@ -100,7 +100,7 @@ async def post_ticket(request: Request):
         font = win32ui.CreateFont({
             "name": "Arial",
             "height": 30,
-            "weight": 500,
+            "weight": 600,
         })
         hDC.SelectObject(font)
 
@@ -130,7 +130,7 @@ async def post_ticket(request: Request):
                 y += spacing
 
 
-        hDC.TextOut(0, y, "# |     Producto     | Importe")
+        hDC.TextOut(0, y, "Cant |     Producto     | Importe")
         y += spacing
 
         products = data[field]
@@ -139,7 +139,7 @@ async def post_ticket(request: Request):
             name = str(product["name"])[:18].ljust(18)
             price = float(product["price"])
             total = qty * price
-            line = f"{qty:<7} | {name} | {total:7.2f}"
+            line = f"{qty:<3} | {name} | {total:7.2f}"
             hDC.TextOut(0, y, line)
             y += spacing
 
