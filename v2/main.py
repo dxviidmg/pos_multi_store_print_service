@@ -164,7 +164,7 @@ async def post_ticket(request: Request):
 
 
             y += spacing
-            hDC.TextOut(0, y, f"TOTAL 2: ${float(data['total'] - amount_refund):.2f}")
+            hDC.TextOut(0, y, f"TOTAL FINAL: ${float(data['total'] - amount_refund):.2f}")
 
 
         y += spacing
