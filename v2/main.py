@@ -122,11 +122,11 @@ async def post_ticket(request: Request):
 
             for product in products_refund:
                 qty = product["returned_quantity"]
-                name = str(product["name"])[:18].ljust(18)
+                name = str(product["name"])[:15].ljust(15)
                 price = float(product["price"])
                 total = qty * price
                 line = f"{qty:<7} | {name} | {total:7.2f}"
-                hDC.TextOut(0, y, line)
+                hDC.TextOut(0, y, line)        if len(products_refund) > 0: 
                 y += spacing
 
 
@@ -136,7 +136,7 @@ async def post_ticket(request: Request):
         products = data[field]
         for product in products:
             qty = product["quantity"]
-            name = str(product["name"])[:18].ljust(18)
+            name = str(product["name"])[:15].ljust(15)
             price = float(product["price"])
             total = qty * price
             line = f"{qty:<3} | {name} | {total:7.2f}"
