@@ -81,6 +81,7 @@ async def post_ticket(request: Request):
         products = []
         for field in required_fields:
             if field in data:
+                products = data[field]
                 break
 
         if not products:
