@@ -106,29 +106,12 @@ async def post_ticket(request: Request):
 
         y = 10
         spacing = 40
+        hDC.TextOut(0, y, f"Folio: {data['id']}")        
+        y += spacing
         hDC.TextOut(0, y, f"Fecha: {formatted_date}")
         y += spacing
         y += spacing
         # Tabla
-
-        if 'sale_exchange' in data:
-            products_refund = data['sale_exchange']['products_sale']
-
-            hDC.TextOut(0, y, "Productos devueltos")
-            y += spacing
-            hDC.TextOut(0, y, "Cant |     Producto     | Importe")
-            y += spacing
-
-
-            for product in products_refund:
-                qty = product["returned_quantity"]
-                name = str(product["name"])[:15].ljust(15)
-                price = float(product["price"])
-                total = qty * price
-                line = f"{qty:<7} | {name} | {total:7.2f}"
-                hDC.TextOut(0, y, line)
-                y += spacing
-
 
         hDC.TextOut(0, y, "Cant |     Producto     | Importe")
         y += spacing
@@ -151,6 +134,29 @@ async def post_ticket(request: Request):
             y += spacing
             debit = data['total'] - data['paid']
             hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
+
+
+        if 'sale_exchange' in data:
+            products_refund = data['sale_exchange']['products_sale']
+
+            hDC.TextOut(0, y, "Productos devueltos")
+            y += spacing
+            hDC.TextOut(0, y, "Cant |     Producto     | Importe")
+            y += spacing
+
+
+            for product in products_refund:
+                qty = product["returned_quantity"]
+                if qty == 0:
+                    continue
+                
+                name = str(product["name"])[:15].ljust(15)
+                price = float(product["price"])
+                total = qty * price
+                line = f"{qty:<7} | {name} | {total:7.2f}"
+                hDC.TextOut(0, y, line)
+                y += spacing
+
 
         y += spacing
         hDC.TextOut(0, y, f"* SmartVenta *")
