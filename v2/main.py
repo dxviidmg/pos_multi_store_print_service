@@ -1,73 +1,77 @@
-from escpos.printer import Usb
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
 from logging_config import logger 
-
-
 import win32print
 import win32ui
-
-
-
-
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite todos los orígenes
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos los métodos
-    allow_headers=["*"],  # Permite todos los encabezados
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-#Quitar
-printer = Usb(0x04b8, 0x0202)
-
+# Configuración global de la impresora
 printer_name = win32print.GetDefaultPrinter()
-hprinter = win32print.OpenPrinter(printer_name)
-printer_info = win32print.GetPrinter(hprinter, 2)
+
+# Formato general de la fuente
+FORMAT = {"name": "Arial", "height": 30, "weight": 700}
+Y_INIT = 10
+SPACING = 40
+
+
+def iniciar_impresion(titulo="Ticket Python"):
+    hDC = win32ui.CreateDC()
+    hDC.CreatePrinterDC(printer_name)
+    hDC.StartDoc(titulo)
+    hDC.StartPage()
+    font = win32ui.CreateFont(FORMAT)
+    hDC.SelectObject(font)
+    return hDC
+
+
+def finalizar_impresion(hDC):
+    hDC.EndPage()
+    hDC.EndDoc()
+    hDC.DeleteDC()
+
+
+def imprimir_lineas(hDC, lineas, y_inicio=Y_INIT, spacing=SPACING):
+    y = y_inicio
+    for linea in lineas:
+        hDC.TextOut(0, y, linea)
+        y += spacing
+    return y
+
 
 @app.get("/")
 def read_root():
     return {"message": "Hola Mundo"}
 
+
 @app.post("/test/")
 async def post_test(request: Request):
     try:
-        hDC = win32ui.CreateDC()
-        hDC.CreatePrinterDC(printer_name)
-        hDC.StartDoc("Ticket Python")
-        hDC.StartPage()
+        hDC = iniciar_impresion("Ticket Test")
 
-        # Crear una fuente más grande
-        font = win32ui.CreateFont({
-            "name": "Arial",
-            "height": 40,  # Tamaño de la fuente (cuanto más grande el número, más grande el texto)
-            "weight": 700,  # Negrita (opcional)
-        })
+        lineas = [
+            "¡Hola desde Python!",
+            "Gracias por tu compra."
+        ]
+        imprimir_lineas(hDC, lineas)
 
-        hDC.SelectObject(font)
+        finalizar_impresion(hDC)
 
-        # Escribir texto alineado a la izquierda (x cercano a 0)
-        hDC.TextOut(0, 100, "¡Hola desde Python!")
-        hDC.TextOut(0, 160, "Gracias por tu compra.")
-
-        hDC.EndPage()
-        hDC.EndDoc()
-        hDC.DeleteDC()
-
-        print(f"POST recibido")
+        logger.info("Impresión test completada")
         return JSONResponse(content={"message": "Datos recibidos correctamente"})
-
-
-    except HTTPException as http_error:
-        return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
+    
     except Exception as e:
         logger.exception("Unexpected error occurred")
-        # Manejo de errores generales
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
 
 
@@ -75,118 +79,96 @@ async def post_test(request: Request):
 async def post_ticket(request: Request):
     try:
         data = await request.json()
+
         if "total" not in data:
             raise HTTPException(status_code=400, detail="Falta el campo 'total'")
 
         required_fields = ["store_products", "products_sale"]
-        products = []
-        for field in required_fields:
-            if field in data:
-                products = data[field]
-                break
+        products = next((data[field] for field in required_fields if field in data), [])
 
         if not products:
             raise HTTPException(status_code=400, detail="Faltan datos de productos")
 
-        # Obtener la fecha y hora actual
-        now = datetime.datetime.now()
-        formatted_date = now.strftime("%d/%m/%Y %H:%M:%S")
+        now = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        hDC = iniciar_impresion("Ticket Venta")
 
-        # === INICIO IMPRESIÓN CON GDI ===
-        hDC = win32ui.CreateDC()
-        hDC.CreatePrinterDC(printer_name)
-        hDC.StartDoc("Ticket Python")
-        hDC.StartPage()
+        # Encabezado
+        lineas = [
+            f"Folio: {data['id']}",
+            f"Fecha: {now}",
+            "",
+            "Cant |     Producto     | Importe"
+        ]
+        y = imprimir_lineas(hDC, lineas)
 
-        font = win32ui.CreateFont({
-            "name": "Arial",
-            "height": 30,
-            "weight": 600,
-        })
-        hDC.SelectObject(font)
-
-        y = 10
-        spacing = 40
-        hDC.TextOut(0, y, f"Folio: {data['id']}")        
-        y += spacing
-        hDC.TextOut(0, y, f"Fecha: {formatted_date}")
-        y += spacing
-        y += spacing
-        # Tabla
-
-        hDC.TextOut(0, y, "Cant |     Producto     | Importe")
-        y += spacing
-
-        products = data[field]
+        # Productos
         for product in products:
             qty = product["quantity"]
             name = str(product["name"])[:15].ljust(15)
             price = float(product["price"])
             total = qty * price
-            line = f"{qty:<3} | {name} | {total:7.2f}"
-            hDC.TextOut(0, y, line)
-            y += spacing
+            linea = f"{qty:<3} | {name} | {total:7.2f}"
+            hDC.TextOut(0, y, linea)
+            y += SPACING
 
-        # Total
-        y += spacing
+        # Total general
+        y += SPACING
         hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
-        y += spacing
+        y += SPACING
 
-        if 'reservation_in_progress' in data and data['reservation_in_progress'] == True:
+        if data.get('reservation_in_progress'):
             hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
-            y += spacing
+            y += SPACING
             debit = float(data['total']) - float(data['paid'])
-            hDC.TextOut(0, y, f"Pendiente a pagar: ${float(debit):.2f}")
-            
+            hDC.TextOut(0, y, f"Pendiente a pagar: ${debit:.2f}")
+            y += SPACING
 
+        # Devoluciones
         if 'sale_exchange' in data and 'products_sale' in data['sale_exchange']:
             amount_refund = 0
             products_refund = data['sale_exchange']['products_sale']
-
-            hDC.TextOut(0, y, "Productos devueltos")
-            y += spacing
-            hDC.TextOut(0, y, "Cant |     Producto     | Importe")
-            y += spacing
-
+            lineas = [
+                "",
+                "Productos devueltos",
+                "Cant |     Producto     | Importe"
+            ]
+            y = imprimir_lineas(hDC, lineas, y_inicio=y)
 
             for product in products_refund:
                 qty = product["returned_quantity"]
                 if qty == 0:
                     continue
-
                 name = str(product["name"])[:15].ljust(15)
                 price = float(product["price"])
                 total = qty * price
                 amount_refund += total
-                line = f"{qty:<7} | {name} | {total:7.2f}"
-                hDC.TextOut(0, y, line)
-                y += spacing
-            y += spacing
-            hDC.TextOut(0, y, f"TOTAL DEVUELTO: ${float(amount_refund):.2f}")
+                linea = f"{qty:<3} | {name} | {total:7.2f}"
+                hDC.TextOut(0, y, linea)
+                y += SPACING
 
+            y += SPACING
+            hDC.TextOut(0, y, f"TOTAL DEVUELTO: ${amount_refund:.2f}")
+            y += SPACING
+            hDC.TextOut(0, y, f"TOTAL FINAL: ${float(data['total']) - amount_refund:.2f}")
+            y += SPACING
 
-            y += spacing
-            hDC.TextOut(0, y, f"TOTAL FINAL: ${float(data['total'] - amount_refund):.2f}")
+        # Pie de ticket
+        lineas = [
+            "",
+            "* SmartVenta *",
+            "¡¡¡Gracias por su compra!!!"
+        ]
+        imprimir_lineas(hDC, lineas, y_inicio=y)
 
+        finalizar_impresion(hDC)
 
-        y += spacing
-        hDC.TextOut(0, y, f"* SmartVenta *")
-        y += spacing
-        hDC.TextOut(0, y, f"¡¡¡Gracias por su compra!!!")
-        hDC.EndPage()
-        y += spacing
-        y += spacing
-        hDC.EndDoc()
-        hDC.DeleteDC()
-        # === FIN IMPRESIÓN ===
-
-        return JSONResponse(content={"message": "Ticket impreso correctamente"}, status_code=200)
-
+        logger.info("Ticket impreso correctamente")
+        return JSONResponse(content={"message": "Ticket impreso correctamente"})
+    
     except HTTPException as http_error:
-        print(http_error)
-        logger.exception("Unexpected error occurred")
+        logger.exception("Error HTTP")
         return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
+    
     except Exception as e:
-        print(e)
         logger.exception("Unexpected error occurred")
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
