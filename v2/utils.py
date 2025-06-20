@@ -1,17 +1,12 @@
 import requests
-from dotenv import load_dotenv
-import os
-
-# Carga las variables de entorno desde el archivo .env
-load_dotenv()
-API_URL = os.getenv("API_URL")
 
 def get_store_printer_data(data):
 
     id = str(data['store'])
     token = data['token']
+    api_url = data['api_url']
 
-    url = API_URL + '/api/store-printer/' + id
+    url = api_url + id
     print(url)
 
     # Si requiere headers (por ejemplo, autenticación):
