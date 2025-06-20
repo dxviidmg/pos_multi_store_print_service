@@ -2,11 +2,11 @@ import requests
 
 def get_store_printer_data(data):
 
-    id = str(data['store'])
+    store_printer = str(data['store_printer'])
     token = data['token']
     api_url = data['api_url']
 
-    url = api_url + id
+    url = api_url + store_printer
     print(url)
 
     # Si requiere headers (por ejemplo, autenticación):
