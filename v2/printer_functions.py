@@ -21,13 +21,13 @@ def start_printing(titulo="Ticket Python", data={}):
     print(store_printer)
 
     y = Y_INIT
-    hDC.TextOut(0, Y_INIT, store_printer['store'['tenant_name']])
+    hDC.TextOut(0, Y_INIT, store_printer['store']['tenant_name'])
     y += Y_INIT
 
-    hDC.TextOut(0, Y_INIT, store_printer['store'['address']])
+    hDC.TextOut(0, Y_INIT, store_printer['store']['address'])
     y += Y_INIT
 
-    hDC.TextOut(0, Y_INIT, store_printer['store'['phone_number']])
+    hDC.TextOut(0, Y_INIT, store_printer['store']['phone_number'])
     y += Y_INIT
     return hDC
 
