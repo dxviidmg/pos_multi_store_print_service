@@ -6,7 +6,7 @@ from logging_config import logger
 #import win32print
 #import win32ui
 
-from printer_functions_test import *
+from printer_functions import *
 
 app = FastAPI()
 
@@ -41,6 +41,7 @@ async def post_test(request: Request):
         return JSONResponse(content={"message": "Datos recibidos correctamente"})
     
     except Exception as e:
+        print(e)
         logger.exception("Unexpected error occurred")
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
 
