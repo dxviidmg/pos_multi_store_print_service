@@ -27,7 +27,8 @@ def read_root():
 @app.post("/test/")
 async def post_test(request: Request):
     try:
-        hDC = start_printing("Ticket Test")
+        data = await request.json()
+        hDC = start_printing("Ticket Test", data)
 
         lineas = [
             "¡Hola desde Python!",
