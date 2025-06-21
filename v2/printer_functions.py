@@ -34,6 +34,7 @@ def start_printing(titulo="Ticket Python", data={}):
     return hDC
 
 
+
 def end_printing(hDC):
     hDC.EndPage()
     hDC.EndDoc()
