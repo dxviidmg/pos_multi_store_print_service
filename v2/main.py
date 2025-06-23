@@ -60,7 +60,7 @@ async def post_ticket(request: Request):
 
         date = data.get('created_at', datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         
-        hDC = start_printing("Ticket Venta", data)
+        hDC, y = start_printing("Ticket Venta", data)
 
         # Encabezado
         lineas = [
@@ -69,7 +69,7 @@ async def post_ticket(request: Request):
             "",
             "Cant |     Producto     | Importe"
         ]
-        y = print_lines(hDC, lineas)
+        y = print_lines(hDC, lineas, y)
 
         # Productos
         for product in products:
