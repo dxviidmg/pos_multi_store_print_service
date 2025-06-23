@@ -3,8 +3,8 @@ import win32ui
 from utils import get_store_printer_data
 
 # Formato general de la fuente
-FORMAT = {"name": "Arial", "height": 30, "weight": 700}
-Y_INIT = 10
+FORMAT = {"name": "Arial", "height": 15, "weight": 600}
+Y_INIT = 20
 SPACING = 40
 
 printer_name = win32print.GetDefaultPrinter()
@@ -22,6 +22,7 @@ def start_printing(titulo="Ticket Python", data={}):
 
     y = Y_INIT
     if store_printer['store']['tenant_name']:
+        print('existe')
         hDC.TextOut(0, y, store_printer['store']['tenant_name'])
         y += Y_INIT
     else:
