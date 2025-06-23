@@ -36,7 +36,7 @@ def start_printing(titulo="Ticket Python", data={}):
     if store_printer['store']['phone_number']:
         hDC.TextOut(0, y, store_printer['store']['phone_number'])
         y += Y_INIT
-    return hDC
+    return hDC, y
 
 
 
@@ -46,9 +46,9 @@ def end_printing(hDC):
     hDC.DeleteDC()
 
 
-def print_lines(hDC, lineas, y_inicio=Y_INIT, spacing=SPACING):
+def print_lines(hDC, lineas, y_inicio):
     y = y_inicio
     for linea in lineas:
         hDC.TextOut(0, y, linea)
-        y += spacing
+        y += SPACING
     return hDC

@@ -28,13 +28,13 @@ def read_root():
 async def post_test(request: Request):
     try:
         data = await request.json()
-        hDC = start_printing("Ticket Test", data)
+        hDC, y = start_printing("Ticket Test", data)
 
         lineas = [
             "¡Hola desde Python!",
             "Gracias por tu compra."
         ]
-        print_lines(hDC, lineas)
+        print_lines(hDC, lineas, y)
 
         end_printing(hDC)
 
