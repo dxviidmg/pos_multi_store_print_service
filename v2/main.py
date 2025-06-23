@@ -67,7 +67,7 @@ async def post_ticket(request: Request):
             f"Folio: {data['id']}",
             f"Fecha: {date}",
             "",
-            "# |      Producto      | Importe"
+            "#  |      Producto       | Importe"
         ]
         hDC, y = print_lines(hDC, lineas, y)
 
