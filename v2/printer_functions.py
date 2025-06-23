@@ -21,13 +21,8 @@ def start_printing(titulo="Ticket Python", data={}):
     print(store_printer)
 
     y = Y_INIT
-    if store_printer['store']['tenant_name']:
-        print('existe')
-#        hDC.TextOut(0, y, store_printer['store']['tenant_name'])
-        hDC.TextOut(0, y, "store_printer['store']['tenant_name']")
-        y += Y_INIT
-    else:
-        print('no hay')
+    hDC.TextOut(0, y, store_printer['store']['tenant_name'])
+    y += Y_INIT
 
     if store_printer['store']['address']:
         hDC.TextOut(0, y, store_printer['store']['address'])
