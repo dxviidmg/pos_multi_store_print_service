@@ -1,5 +1,8 @@
 import win32print
 import win32ui
+import win32con
+
+
 from utils import get_store_printer_data
 
 # Formato general de la fuente
@@ -16,6 +19,13 @@ def start_printing(titulo="Ticket Python", data={}):
     hDC.StartPage()
     font = win32ui.CreateFont(FORMAT)
     hDC.SelectObject(font)
+
+
+    max_width = hDC.GetDeviceCaps(win32con.HORZRES)
+    max_height = hDC.GetDeviceCaps(win32con.VERTRES)
+
+    print(f"Ancho máximo: {max_width} px")
+    print(f"Alto máximo: {max_height} px")
 
     store_printer = get_store_printer_data(data)
     print(store_printer)
