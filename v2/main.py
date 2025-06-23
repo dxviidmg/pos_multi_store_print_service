@@ -67,14 +67,14 @@ async def post_ticket(request: Request):
             f"Folio: {data['id']}",
             f"Fecha: {date}",
             "",
-            "Cant |     Producto     | Importe"
+            "# |      Producto      | Importe"
         ]
         hDC, y = print_lines(hDC, lineas, y)
 
         # Productos
         for product in products:
             qty = product["quantity"]
-            name = str(product["name"])[:15].ljust(15)
+            name = str(product["name"])[:14].ljust(14)
             price = float(product["price"])
             total = qty * price
             linea = f"{qty:<3} | {name} | {total:7.2f}"
@@ -100,7 +100,7 @@ async def post_ticket(request: Request):
             lineas = [
                 "",
                 "Productos devueltos",
-                "Cant |     Producto     | Importe"
+                "# |      Producto      | Importe"
             ]
             y = print_lines(hDC, lineas, y_inicio=y)
 
@@ -108,7 +108,7 @@ async def post_ticket(request: Request):
                 qty = product["returned_quantity"]
                 if qty == 0:
                     continue
-                name = str(product["name"])[:15].ljust(15)
+                name = str(product["name"])[:14].ljust(14)
                 price = float(product["price"])
                 total = qty * price
                 amount_refund += total
