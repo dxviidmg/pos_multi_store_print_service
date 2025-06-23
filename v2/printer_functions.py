@@ -6,7 +6,7 @@ import win32con
 from utils import get_store_printer_data
 
 # Formato general de la fuente
-FORMAT = {"name": "Arial", "height": 15, "weight": 600}
+FORMAT = {"name": "Arial", "height": 15, "weight": 500}
 Y_INIT = 20
 SPACING = 40
 
@@ -48,7 +48,7 @@ def print_lines(hDC, lineas, y_inicio, is_test=False):
     if is_test:
         max_width = hDC.GetDeviceCaps(win32con.HORZRES)
         y_inicio += Y_INIT
-        hDC.TextOut(0, y_inicio, 'Ancho maximo' + str(max_width))
+        hDC.TextOut(0, y_inicio, 'Ancho maximo: ' + str(max_width) + 'pxs.')
         return hDC
     else:
         y = y_inicio
