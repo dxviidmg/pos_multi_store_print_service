@@ -6,7 +6,7 @@ import win32con
 from utils import get_store_printer_data
 
 # Formato general de la fuente
-FORMAT = {"name": "Arial", "height": 15, "weight": 500}
+FORMAT = {"name": "Arial", "height": 10, "weight": 450}
 Y_INIT = 20
 SPACING = 40
 
