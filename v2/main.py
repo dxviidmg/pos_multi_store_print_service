@@ -102,7 +102,7 @@ async def post_ticket(request: Request):
                 "Productos devueltos",
                 "# |      Producto      | Importe"
             ]
-            y = print_lines(hDC, lineas, y_inicio=y)
+            hDC, y = print_lines(hDC, lineas, y_inicio=y)
 
             for product in products_refund:
                 qty = product["returned_quantity"]
