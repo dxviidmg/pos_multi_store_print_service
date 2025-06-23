@@ -29,12 +29,7 @@ async def post_test(request: Request):
     try:
         data = await request.json()
         hDC, y = start_printing("Ticket Test", data)
-
-        lineas = [
-            "¡Hola desde Python!",
-            "Gracias por tu compra."
-        ]
-        print_lines(hDC, lineas, y)
+        print_lines(hDC, [], y, True)
 
         end_printing(hDC)
 

@@ -21,8 +21,6 @@ def start_printing(titulo="Ticket Python", data={}):
     hDC.SelectObject(font)
 
 
-    max_width = hDC.GetDeviceCaps(win32con.HORZRES)
-    max_height = hDC.GetDeviceCaps(win32con.VERTRES)
 
     print(f"Ancho máximo: {max_width} px")
     print(f"Alto máximo: {max_height} px")
@@ -51,9 +49,15 @@ def end_printing(hDC):
     hDC.DeleteDC()
 
 
-def print_lines(hDC, lineas, y_inicio):
-    y = y_inicio
-    for linea in lineas:
-        hDC.TextOut(0, y, linea)
-        y += SPACING
-    return hDC
+def print_lines(hDC, lineas, y_inicio, is_test=False):
+    if is_test:
+        max_width = hDC.GetDeviceCaps(win32con.HORZRES)
+        hDC.TextOut(0, y, 'Ancho maximo' + max_width)
+        y += Y_INIT
+        return hDC
+    else:
+        y = y_inicio
+        for linea in lineas:
+            hDC.TextOut(0, y, linea)
+            y += SPACING
+        return hDC
