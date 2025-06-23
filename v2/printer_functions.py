@@ -48,7 +48,7 @@ def print_lines(hDC, lineas, y_inicio, is_test=False):
     if is_test:
         max_width = hDC.GetDeviceCaps(win32con.HORZRES)
         y_inicio += Y_INIT
-        hDC.TextOut(0, y_inicio, 'Ancho maximo' + max_width)
+        hDC.TextOut(0, y_inicio, 'Ancho maximo' + str(max_width))
         return hDC
     else:
         y = y_inicio
