@@ -69,7 +69,7 @@ async def post_ticket(request: Request):
             "",
             "Cant |     Producto     | Importe"
         ]
-        y = print_lines(hDC, lineas, y)
+        hDC, y = print_lines(hDC, lineas, y)
 
         # Productos
         for product in products:

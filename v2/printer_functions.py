@@ -55,4 +55,4 @@ def print_lines(hDC, lineas, y_inicio, is_test=False):
         for linea in lineas:
             hDC.TextOut(0, y, linea)
             y += SPACING
-        return hDC
+        return hDC, y
