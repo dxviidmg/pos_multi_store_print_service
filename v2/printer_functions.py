@@ -30,10 +30,13 @@ def start_printing(titulo="Ticket Python", data={}):
     if store_printer['store']['address']:
         hDC.TextOut(0, y, store_printer['store']['address'])
         y += Y_INIT
+        y += Y_INIT
 
     if store_printer['store']['phone_number']:
         hDC.TextOut(0, y, store_printer['store']['phone_number'])
         y += Y_INIT
+        y += Y_INIT
+        
     return hDC, y
 
 
