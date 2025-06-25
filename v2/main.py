@@ -83,7 +83,7 @@ async def post_ticket(request: Request):
 
         # Total general
         y += SPACING
-        hDC.TextOut(0, y, f"TOTAL: ${float(data['total']):.2f}")
+        hDC.TextOut(0, y, f"Total: ${float(data['total']):.2f}")
         y += SPACING
 
         if data.get('reservation_in_progress'):
@@ -117,9 +117,9 @@ async def post_ticket(request: Request):
                 y += SPACING
 
             y += SPACING
-            hDC.TextOut(0, y, f"TOTAL DEVUELTO: ${amount_refund:.2f}")
+            hDC.TextOut(0, y, f"Total devolución: ${amount_refund:.2f}")
             y += SPACING
-            hDC.TextOut(0, y, f"TOTAL FINAL: ${float(data['total']) - amount_refund:.2f}")
+            hDC.TextOut(0, y, f"Total a pagar: ${float(data['total']) - amount_refund:.2f}")
             y += SPACING
 
         # Pie de ticket
@@ -128,6 +128,9 @@ async def post_ticket(request: Request):
             "* SmartVenta *",
             "¡¡¡Gracias por su compra!!!"
         ]
+
+        if data['store']['accepts_exchanges'] == True:
+            lineas.extend(["Para cualquier cambio,", "presentar su ticket"])
         print_lines(hDC, lineas, y_inicio=y)
 
         end_printing(hDC)
