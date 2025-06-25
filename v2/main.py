@@ -129,7 +129,7 @@ async def post_ticket(request: Request):
             "¡¡¡Gracias por su compra!!!"
         ]
 
-        print(data['store']['accepts_exchanges'])
+        print(data['store'])
 #        if data['store']['accepts_exchanges'] == True:
         lineas.extend(["Para cualquier cambio,", "presentar su ticket"])
         print_lines(hDC, lineas, y_inicio=y)
