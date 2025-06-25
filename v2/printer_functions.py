@@ -21,7 +21,6 @@ def start_printing(titulo="Ticket Python", data={}):
     hDC.SelectObject(font)
 
     store_printer = get_store_printer_data(data)
-    print(store_printer)
 
     y = Y_INIT
     hDC.TextOut(0, y, store_printer['store']['tenant_name'])
@@ -34,7 +33,7 @@ def start_printing(titulo="Ticket Python", data={}):
     if store_printer['store']['phone_number']:
         hDC.TextOut(0, y, store_printer['store']['phone_number'])
         y += SPACING
-    return hDC, y
+    return hDC, y, store_printer['store']['accepts_exchanges']
 
 
 

@@ -28,7 +28,7 @@ def read_root():
 async def post_test(request: Request):
     try:
         data = await request.json()
-        hDC, y = start_printing("Ticket Test", data)
+        hDC, y, _ = start_printing("Ticket Test", data)
         print_lines(hDC, [], y, True)
 
         end_printing(hDC)
@@ -47,8 +47,6 @@ async def post_ticket(request: Request):
     try:
         data = await request.json()
 
-        print(data)
-
         if "total" not in data:
             raise HTTPException(status_code=400, detail="Falta el campo 'total'")
 
@@ -60,7 +58,7 @@ async def post_ticket(request: Request):
 
         date = data.get('created_at', datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         
-        hDC, y = start_printing("Ticket Venta", data)
+        hDC, y, accepts_exchanges = start_printing("Ticket Venta", data)
 
         # Encabezado
         lineas = [
@@ -129,9 +127,8 @@ async def post_ticket(request: Request):
             "¡¡¡Gracias por su compra!!!"
         ]
 
-        print(data['store'])
-#        if data['store']['accepts_exchanges'] == True:
-        lineas.extend(["Para cualquier cambio,", "presentar su ticket"])
+        if accepts_exchanges is True:
+            lineas.extend(["Para cualquier cambio,", "presentar su ticket"])
         print_lines(hDC, lineas, y_inicio=y)
 
         end_printing(hDC)

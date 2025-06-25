@@ -7,7 +7,6 @@ def get_store_printer_data(data):
     api_url = data['api_url']
 
     url = api_url + store_printer
-    print(url)
 
     # Si requiere headers (por ejemplo, autenticación):
     headers = {
@@ -17,7 +16,6 @@ def get_store_printer_data(data):
 
     # Haces la petición GET
     response = requests.get(url, headers=headers)
-    print(response)
 
     # Verificas que la petición fue exitosa
     if response.status_code == 200:
