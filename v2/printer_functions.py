@@ -5,22 +5,22 @@ import win32con
 
 from utils import get_store_printer_data
 
-# Formato general de la fuente
-FORMAT = {"name": "Arial", "height": 12, "weight": 600}
 Y_INIT = 20
 SPACING = 40
 
 printer_name = win32print.GetDefaultPrinter()
 
 def start_printing(titulo="Ticket Python", data={}):
+    store_printer = get_store_printer_data(data)
     hDC = win32ui.CreateDC()
     hDC.CreatePrinterDC(printer_name)
     hDC.StartDoc(titulo)
     hDC.StartPage()
+    FORMAT = {"name": "Arial", "height": store_printer['printer']['font_height'], "weight": 600}
     font = win32ui.CreateFont(FORMAT)
     hDC.SelectObject(font)
 
-    store_printer = get_store_printer_data(data)
+
 
     y = Y_INIT
     hDC.TextOut(0, y, store_printer['store']['tenant_name'])
