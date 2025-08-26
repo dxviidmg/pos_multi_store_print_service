@@ -98,8 +98,9 @@ async def post_ticket(request: Request):
         printer.text("\n")
 #        printer.set(align='right', bold=False, double_height=False, double_width=False)
         printer.set(align='right')
-        printer.text(f"Total: ${float(data['total']):.2f}\n\n")
-
+        printer.text(f"Total: ${float(data['total']):.2f}\n")
+        printer.text(f"Pagó con: ${float(data['payment']['paidWith']):.2f}\n")
+        printer.text(f"Cambio: ${float(data['payment']['change']):.2f}\n\n")
 #        printer.set(align='center', bold=False, double_height=False, double_width=False)
         printer.set(align='center')
         printer.text("¡Gracias por su compra!\n")
