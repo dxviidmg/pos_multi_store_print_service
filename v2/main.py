@@ -76,8 +76,9 @@ async def post_ticket(request: Request):
 
         # Productos
         for product in products:
+            print(product)
             qty = product["quantity"]
-            name = str(product["code"])[:14].ljust(14)
+            name = str(product["name"])[:14].ljust(14)
             if ADD_CODE:
                 code_name = str(product["code"]) + " " + str(product["name"])
                 name = code_name[:14].ljust(14)
