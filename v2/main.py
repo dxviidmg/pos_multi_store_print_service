@@ -3,10 +3,15 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
 from logging_config import logger 
-#import win32print
-#import win32ui
+from dotenv import load_dotenv
+import os
 
 from printer_functions import *
+
+load_dotenv()
+
+ADD_CODE = os.getenv('ADD_CODE', 'False')
+ADD_CODE = ADD_CODE.lower() in ("true", "1", "yes", "y")
 
 app = FastAPI()
 
@@ -72,7 +77,10 @@ async def post_ticket(request: Request):
         # Productos
         for product in products:
             qty = product["quantity"]
-            name = str(product["name"])[:14].ljust(14)
+            name = str(product["code"])[:14].ljust(14)
+            if ADD_CODE:
+                code_name = str(product["code"]) + " " + str(product["name"])
+                name = code_name[:14].ljust(14)
             price = float(product["price"])
             total = qty * price
             linea = f"{qty:<3} | {name} | {total:7.2f}"
