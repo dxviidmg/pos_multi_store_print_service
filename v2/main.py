@@ -11,9 +11,9 @@ from printer_functions import *
 load_dotenv()
 
 ADD_CODE = os.getenv('ADD_CODE', 'False')
+print('ADD_CODE 1', ADD_CODE, type(ADD_CODE))
 ADD_CODE = ADD_CODE.lower() in ("true", "1", "yes", "y")
-
-print('ADD_CODE', ADD_CODE, type(ADD_CODE))
+print('ADD_CODE 2', ADD_CODE, type(ADD_CODE))
 
 app = FastAPI()
 
@@ -78,7 +78,7 @@ async def post_ticket(request: Request):
 
         # Productos
         for product in products:
-            print(product.keys())
+            print(product)
             qty = product["quantity"]
             name = str(product["name"])[:14].ljust(14)
             if ADD_CODE:
