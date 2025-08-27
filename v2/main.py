@@ -76,11 +76,11 @@ async def post_ticket(request: Request):
 
         # Productos
         for product in products:
-            print(product)
+            print(product.keys())
             qty = product["quantity"]
             name = str(product["name"])[:14].ljust(14)
             if ADD_CODE:
-                code_name = str(product["code"]) + " " + str(product["name"])
+                code_name = f'{product["code"]} {product["name"]}'
                 name = code_name[:14].ljust(14)
             price = float(product["price"])
             total = qty * price
@@ -100,7 +100,7 @@ async def post_ticket(request: Request):
         else:
             hDC.TextOut(0, y, f"Soy un ticket de respaldo")
             y += SPACING
-            
+
         if data.get('reservation_in_progress'):
             hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
             y += SPACING
