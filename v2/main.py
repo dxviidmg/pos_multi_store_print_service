@@ -13,6 +13,8 @@ load_dotenv()
 ADD_CODE = os.getenv('ADD_CODE', 'False')
 ADD_CODE = ADD_CODE.lower() in ("true", "1", "yes", "y")
 
+print('ADD_CODE', ADD_CODE, type(ADD_CODE))
+
 app = FastAPI()
 
 app.add_middleware(
