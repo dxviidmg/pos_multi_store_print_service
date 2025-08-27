@@ -8,7 +8,9 @@ import os
 
 from printer_functions import *
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(BASE_DIR, ".env")
+load_dotenv(dotenv_path)
 
 ADD_CODE = os.getenv('ADD_CODE', 'False')
 print('ADD_CODE 1', ADD_CODE, type(ADD_CODE))
