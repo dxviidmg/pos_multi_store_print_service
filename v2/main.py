@@ -81,6 +81,7 @@ async def post_ticket(request: Request):
             name = str(product["name"])[:14].ljust(14)
             if ADD_CODE:
                 code_name = f'{product["code"]} {product["name"]}'
+                print(code_name)
                 name = code_name[:14].ljust(14)
             price = float(product["price"])
             total = qty * price
