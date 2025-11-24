@@ -99,14 +99,15 @@ async def post_ticket(request: Request):
 #        printer.set(align='right', bold=False, double_height=False, double_width=False)
         printer.set(align='right')
         printer.text(f"Total: ${float(data['total']):.2f}\n")
-        printer.text(f"Pagó con: ${float(data['payment']['paidWith']):.2f}\n")
-        printer.text(f"Cambio: ${float(data['payment']['change']):.2f}\n\n")
-#        printer.set(align='center', bold=False, double_height=False, double_width=False)
+
+        if 'payment' in data:
+            printer.text(f"Pagó con: ${float(data['payment']['paidWith']):.2f}\n")
+            printer.text(f"Cambio: ${float(data['payment']['change']):.2f}\n\n")
+
         printer.set(align='center')
         printer.text("¡Gracias por su compra!\n")
         printer.text("* SmartVenta *\n")
-        if data['cut_command'] and data['cut_command'] == True:
-            printer.cut()
+        printer.cut()
 
         # Respuesta de éxito
         return JSONResponse(content={"message": "Datos recibidos correctamente"}, status_code=200)
