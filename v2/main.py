@@ -38,15 +38,13 @@ async def post_test(request: Request):
     try:
         data = await request.json()
         hDC, y, _ = start_printing("Ticket Test", data)
-        print_lines(hDC, [], y, True)
-
+        hDC, y = print_lines(hDC, [], y, True)
         end_printing(hDC)
 
         logger.info("Impresión test completada")
         return JSONResponse(content={"message": "Datos recibidos correctamente"})
     
     except Exception as e:
-        print(e)
         logger.exception("Unexpected error occurred")
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
 
@@ -67,7 +65,7 @@ async def post_ticket(request: Request):
 
         date = data.get('created_at', datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         
-        hDC, y, accepts_exchanges = start_printing("Ticket Venta", data)
+        hDC, y, _ = start_printing("Ticket Venta", data)
 
         # Encabezado
         lineas = [
@@ -80,17 +78,13 @@ async def post_ticket(request: Request):
 
         # Productos
         for product in products:
-            print(product)
             qty = product["quantity"]
             name = str(product["name"])[:14].ljust(14)
             if ADD_CODE:
-                code_name = f'{product["code"]} {product["name"]}'
-                print(code_name)
-                name = code_name[:14].ljust(14)
+                name = f'{product["code"]} {product["name"]}'[:14].ljust(14)
             price = float(product["price"])
             total = qty * price
-            linea = f"{qty:<3} | {name} | {total:7.2f}"
-            hDC.TextOut(0, y, linea)
+            hDC.TextOut(0, y, f"{qty:<3} | {name} | {total:7.2f}")
             y += SPACING
 
         # Total general
@@ -122,7 +116,7 @@ async def post_ticket(request: Request):
                 "Productos devueltos",
                 "# |      Producto      | Importe"
             ]
-            hDC, y = print_lines(hDC, lineas, y_inicio=y)
+            hDC, y = print_lines(hDC, lineas, y)
 
             for product in products_refund:
                 qty = product["returned_quantity"]
@@ -132,8 +126,7 @@ async def post_ticket(request: Request):
                 price = float(product["price"])
                 total = qty * price
                 amount_refund += total
-                linea = f"{qty:<3} | {name} | {total:7.2f}"
-                hDC.TextOut(0, y, linea)
+                hDC.TextOut(0, y, f"{qty:<3} | {name} | {total:7.2f}")
                 y += SPACING
 
             y += SPACING
@@ -148,10 +141,7 @@ async def post_ticket(request: Request):
             "* SmartVenta *",
             "¡¡¡Gracias por su compra!!!"
         ]
-
-        if accepts_exchanges is True:
-            lineas.extend(["Para cualquier cambio,", "presentar su ticket"])
-        print_lines(hDC, lineas, y_inicio=y)
+        hDC, y = print_lines(hDC, lineas, y)
 
         end_printing(hDC)
 
@@ -163,6 +153,5 @@ async def post_ticket(request: Request):
         return JSONResponse(content={"message": str(http_error.detail)}, status_code=http_error.status_code)
     
     except Exception as e:
-        print(e)
         logger.exception("Unexpected error occurred")
         return JSONResponse(content={"message": f"Error al procesar la solicitud: {str(e)}"}, status_code=500)
