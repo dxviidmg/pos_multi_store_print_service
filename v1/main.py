@@ -103,6 +103,8 @@ async def post_ticket(request: Request):
         if 'payment' in data:
             printer.text(f"Pagó con: ${float(data['payment']['paidWith']):.2f}\n")
             printer.text(f"Cambio: ${float(data['payment']['change']):.2f}\n\n")
+        else:
+            printer.text(f"Soy un ticket de respaldo\n\n")
 
         printer.set(align='center')
         printer.text("¡Gracias por su compra!\n")
