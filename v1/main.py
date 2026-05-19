@@ -23,6 +23,14 @@ printer = Usb(0x04b8, 0x0202)
 def read_root():
     return {"message": "Hola Mundo"}
 
+@app.get("/status/")
+def printer_status():
+    try:
+        printer.device
+        return JSONResponse(status_code=200, content={})
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=503)
+
 @app.post("/test/")
 async def post_test(request: Request):
     data = await request.json()

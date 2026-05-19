@@ -32,6 +32,19 @@ app.add_middleware(
 def read_root():
     return {"message": "Hola Mundo"}
 
+@app.get("/status/")
+def printer_status():
+    try:
+        printer_name = win32print.GetDefaultPrinter()
+        handle = win32print.OpenPrinter(printer_name)
+        info = win32print.GetPrinter(handle, 2)
+        win32print.ClosePrinter(handle)
+        if info['Status'] == 0:
+            return JSONResponse(status_code=200, content={})
+        return JSONResponse(content={"error": f"Impresora con estado: {info['Status']}"}, status_code=503)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=503)
+
 
 @app.post("/test/")
 async def post_test(request: Request):
