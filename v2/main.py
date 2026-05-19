@@ -13,9 +13,7 @@ dotenv_path = os.path.join(BASE_DIR, ".env")
 load_dotenv(dotenv_path)
 
 ADD_CODE = os.getenv('ADD_CODE', 'False')
-print('ADD_CODE 1', ADD_CODE, type(ADD_CODE))
 ADD_CODE = ADD_CODE.lower() in ("true", "1", "yes", "y")
-print('ADD_CODE 2', ADD_CODE, type(ADD_CODE))
 
 app = FastAPI()
 
