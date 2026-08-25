@@ -57,6 +57,11 @@ async def post_ticket(request: Request):
 
         date = data.get('created_at', datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         
+        # Calcular info de apartado si aplica
+        is_reservation = data.get('reservation_in_progress', False)
+        paid = sum(float(p.get('amount', 0)) for p in data.get('payments', [])) if is_reservation else 0
+        debit = float(data['total']) - paid if is_reservation else 0
+
         # Simular impresión guardando en archivo
         ticket_data = {
             "folio": data.get('id'),
@@ -64,8 +69,13 @@ async def post_ticket(request: Request):
             "productos": products,
             "total": float(data['total']),
             "pago": data.get('payment'),
+            "es_apartado": is_reservation,
             "timestamp": datetime.datetime.now().isoformat()
         }
+
+        if is_reservation:
+            ticket_data["abonado"] = paid
+            ticket_data["resta_por_pagar"] = debit
         
         ticket_file = os.path.join(LOG_DIR, f"ticket_{data.get('id', 'sin_id')}.json")
         with open(ticket_file, 'w') as f:

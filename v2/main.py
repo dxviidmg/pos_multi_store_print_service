@@ -102,20 +102,24 @@ async def post_ticket(request: Request):
         y += SPACING
         hDC.TextOut(0, y, f"Total: ${float(data['total']):.2f}")
         y += SPACING
-        if 'payment' in data:
+
+        if data.get('reservation_in_progress'):
+            # Es un apartado
+            paid = sum(float(p.get('amount', 0)) for p in data.get('payments', []))
+            debit = float(data['total']) - paid
+            hDC.TextOut(0, y, f"*** APARTADO ***")
+            y += SPACING
+            hDC.TextOut(0, y, f"Abonado: ${paid:.2f}")
+            y += SPACING
+            hDC.TextOut(0, y, f"Resta por pagar: ${debit:.2f}")
+            y += SPACING
+        elif 'payment' in data:
             hDC.TextOut(0, y, f"Pagó con: ${float(data['payment']['paidWith']):.2f}")
             y += SPACING
             hDC.TextOut(0, y, f"Cambio: ${float(data['payment']['change']):.2f}")
             y += SPACING
         else:
             hDC.TextOut(0, y, f"Soy un ticket de respaldo")
-            y += SPACING
-
-        if data.get('reservation_in_progress'):
-            hDC.TextOut(0, y, f"Pagado: ${float(data['paid']):.2f}")
-            y += SPACING
-            debit = float(data['total']) - float(data['paid'])
-            hDC.TextOut(0, y, f"Pendiente a pagar: ${debit:.2f}")
             y += SPACING
 
         # Devoluciones
@@ -149,7 +153,6 @@ async def post_ticket(request: Request):
         # Pie de ticket
         lineas = [
             "",
-            "* SmartVenta *",
             "¡¡¡Gracias por su compra!!!"
         ]
         hDC, y = print_lines(hDC, lineas, y)

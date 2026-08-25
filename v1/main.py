@@ -104,11 +104,19 @@ async def post_ticket(request: Request):
         
         # Imprimir total
         printer.text("\n")
-#        printer.set(align='right', bold=False, double_height=False, double_width=False)
         printer.set(align='right')
         printer.text(f"Total: ${float(data['total']):.2f}\n")
 
-        if 'payment' in data:
+        if data.get('reservation_in_progress'):
+            # Es un apartado
+            paid = sum(float(p.get('amount', 0)) for p in data.get('payments', []))
+            debit = float(data['total']) - paid
+            printer.set(align='center')
+            printer.text("*** APARTADO ***\n")
+            printer.set(align='right')
+            printer.text(f"Abonado: ${paid:.2f}\n")
+            printer.text(f"Resta por pagar: ${debit:.2f}\n\n")
+        elif 'payment' in data:
             printer.text(f"Pagó con: ${float(data['payment']['paidWith']):.2f}\n")
             printer.text(f"Cambio: ${float(data['payment']['change']):.2f}\n\n")
         else:
@@ -116,7 +124,6 @@ async def post_ticket(request: Request):
 
         printer.set(align='center')
         printer.text("¡Gracias por su compra!\n")
-        printer.text("* SmartVenta *\n")
         printer.cut()
 
         # Respuesta de éxito
