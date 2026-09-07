@@ -1,12 +1,162 @@
 from escpos.printer import Usb
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
 import datetime
+from contextlib import asynccontextmanager
 from logging_config import logger 
+import os
+
+# Intervalo (segundos) para sondear el estado de la impresora y detectar cambios.
+STATUS_POLL_INTERVAL = float(os.getenv('STATUS_POLL_INTERVAL', '2'))
+
+# Configurar la impresora USB (ajusta los valores según tu impresora)
+# La creación se hace tolerante a fallos: si la impresora no está disponible al
+# arrancar, el servidor debe seguir en pie para aceptar conexiones WebSocket y
+# reportar connected=false. Se reintenta la conexión bajo demanda.
+PRINTER_VID = 0x04b8
+PRINTER_PID = 0x0202
+
+printer = None
 
 
-app = FastAPI()
+def _connect_printer():
+    """Intenta (re)crear el objeto de impresora USB. Devuelve el objeto o None."""
+    global printer
+    try:
+        printer = Usb(PRINTER_VID, PRINTER_PID)
+    except Exception:
+        printer = None
+    return printer
+
+
+# Intento inicial de conexión (no bloquea el arranque si falla).
+_connect_printer()
+
+
+# ---------------------------------------------------------------------------
+# Detección del estado de la impresora (python-escpos)
+# ---------------------------------------------------------------------------
+
+def get_printer_status() -> dict:
+    """Consulta la impresora USB y devuelve el estado normalizado.
+
+    Retorna: {"connected": bool, "error": str | None}
+    """
+    global printer
+    try:
+        # Reintentar la conexión si aún no existe (impresora apagada al arrancar).
+        if printer is None and _connect_printer() is None:
+            return {"connected": False, "error": "Impresora apagada"}
+
+        # Verifica que el dispositivo USB siga presente.
+        if getattr(printer, "device", None) is None:
+            printer = None
+            return {"connected": False, "error": "Impresora apagada"}
+
+        # Consulta de papel (si el driver/firmware lo soporta).
+        # paper_status(): 0 = sin papel, 1 = por acabarse, 2 = OK
+        try:
+            paper = printer.paper_status()
+            if paper == 0:
+                return {"connected": False, "error": "Sin papel"}
+        except Exception:
+            # Algunos modelos no responden a la consulta de estado; no es fatal.
+            pass
+
+        return {"connected": True, "error": None}
+    except Exception as e:
+        # Falla de comunicación => impresora apagada/desconectada.
+        printer = None
+        return {"connected": False, "error": str(e) or "Impresora no disponible"}
+
+
+# ---------------------------------------------------------------------------
+# Gestor de conexiones WebSocket + difusión de cambios de estado
+# ---------------------------------------------------------------------------
+
+class PrinterStatusHub:
+    """Mantiene las conexiones WebSocket y difunde los cambios de estado."""
+
+    def __init__(self):
+        self._clients: set[WebSocket] = set()
+        self._lock = asyncio.Lock()
+        self._last_status: dict | None = None
+
+    async def connect(self, ws: WebSocket):
+        await ws.accept()
+        async with self._lock:
+            self._clients.add(ws)
+
+    async def disconnect(self, ws: WebSocket):
+        async with self._lock:
+            self._clients.discard(ws)
+
+    @staticmethod
+    def _build_message(status: dict) -> dict:
+        return {
+            "type": "printer_status",
+            "connected": status["connected"],
+            "error": status["error"],
+        }
+
+    async def send_current(self, ws: WebSocket):
+        """Envía el estado actual a un solo cliente (al conectarse)."""
+        status = self._last_status or get_printer_status()
+        try:
+            await ws.send_json(self._build_message(status))
+        except Exception:
+            logger.exception("Error enviando estado inicial por WebSocket")
+
+    async def broadcast(self, status: dict):
+        message = self._build_message(status)
+        async with self._lock:
+            clients = list(self._clients)
+        stale = []
+        for ws in clients:
+            try:
+                await ws.send_json(message)
+            except Exception:
+                stale.append(ws)
+        if stale:
+            async with self._lock:
+                for ws in stale:
+                    self._clients.discard(ws)
+
+    async def poll_loop(self):
+        """Sondea el estado periódicamente y difunde solo cuando cambia."""
+        self._last_status = await asyncio.to_thread(get_printer_status)
+        while True:
+            try:
+                await asyncio.sleep(STATUS_POLL_INTERVAL)
+                status = await asyncio.to_thread(get_printer_status)
+                if status != self._last_status:
+                    self._last_status = status
+                    await self.broadcast(status)
+            except asyncio.CancelledError:
+                break
+            except Exception:
+                logger.exception("Error en el bucle de sondeo de estado")
+
+
+hub = PrinterStatusHub()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    poll_task = asyncio.create_task(hub.poll_loop())
+    try:
+        yield
+    finally:
+        poll_task.cancel()
+        try:
+            await poll_task
+        except asyncio.CancelledError:
+            pass
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,8 +166,6 @@ app.add_middleware(
     allow_headers=["*"],  # Permite todos los encabezados
 )
 
-# Configurar la impresora USB (ajusta los valores según tu impresora)
-printer = Usb(0x04b8, 0x0202)
 
 @app.get("/")
 def read_root():
@@ -25,11 +173,32 @@ def read_root():
 
 @app.get("/status/")
 def printer_status():
-    try:
-        printer.device
+    status = get_printer_status()
+    if status["connected"]:
         return JSONResponse(status_code=200, content={})
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=503)
+    return JSONResponse(content={"error": status["error"]}, status_code=503)
+
+
+@app.websocket("/printer-status/")
+async def printer_status_ws(websocket: WebSocket):
+    await hub.connect(websocket)
+    # 1) Empuja el estado actual de inmediato al conectar.
+    await hub.send_current(websocket)
+    try:
+        # 2) Los cambios se empujan desde el poll_loop vía broadcast.
+        #    Aquí solo escuchamos mensajes del cliente (heartbeat opcional).
+        while True:
+            data = await websocket.receive_json()
+            if isinstance(data, dict) and data.get("type") == "ping":
+                # 3) Heartbeat: respondemos pong para mantener viva la conexión.
+                await websocket.send_json({"type": "pong"})
+            # Cualquier otro mensaje del cliente se ignora (el cliente solo escucha).
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        logger.exception("Error en la conexión WebSocket de estado")
+    finally:
+        await hub.disconnect(websocket)
 
 @app.post("/test/")
 async def post_test(request: Request):
